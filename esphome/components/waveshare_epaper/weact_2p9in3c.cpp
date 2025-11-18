@@ -135,22 +135,22 @@ void HOT WeActEPaper2P9In3C::draw_absolute_pixel_internal(int x, int y, Color co
   if (x >= this->get_width_internal() || y >= this->get_height_internal() || x < 0 || y < 0)
     return;
 
-  const uint32_t pos = (x + y * this->get_width_internal()) / 8u;
-  const uint8_t subpos = 0x80 >> (x & 0x07);
+  const uint32_t buf_half_len = this->get_buffer_length_() / 2u;
 
+  const uint32_t pos = (x + y * this->get_width_internal()) / 8u;
+  const uint8_t subpos = x & 0x07;
   // flip logic
   if (!color.is_on()) {
-    this->buffer_[pos] |= subpos;
+    this->buffer_[pos] |= 0x80 >> subpos;
   } else {
-    this->buffer_[pos] &= ~subpos;
+    this->buffer_[pos] &= ~(0x80 >> subpos);
   }
 
-  // draw red pixels only if the color contains red only
-  const uint32_t buf_half_len = this->get_buffer_length_() / 2u;
+  // draw red pixels only, if the color contains red only
   if (((color.red > 0) && (color.green == 0) && (color.blue == 0))) {
-    this->buffer_[pos + buf_half_len] |= subpos;
+    this->buffer_[pos + buf_half_len] |= 0x80 >> subpos;
   } else {
-    this->buffer_[pos + buf_half_len] &= ~subpos;
+    this->buffer_[pos + buf_half_len] &= ~(0x80 >> subpos);
   }
 }
 
