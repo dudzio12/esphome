@@ -60,7 +60,11 @@ void WeActEPaper2P9In3C::dump_config() {
 // Device lifecycle
 
 void WeActEPaper2P9In3C::setup() {
-  setup_pins_();
+  this->init_internal_(this->get_buffer_length_());
+  this->setup_pins_();
+  this->spi_setup();
+  this->reset_();
+
   delay(20);
   this->send_reset_();
   // as a one-off delay this is not worth working around.
@@ -135,7 +139,7 @@ void HOT WeActEPaper2P9In3C::draw_absolute_pixel_internal(int x, int y, Color co
   const uint8_t subpos = 0x80 >> (x & 0x07);
 
   // flip logic
-  if (color == display::COLOR_OFF) {
+  if (!color.is_on()) {
     this->buffer_[pos] |= subpos;
   } else {
     this->buffer_[pos] &= ~subpos;
